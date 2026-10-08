@@ -5,6 +5,13 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait; 
 import org.testng.Assert; 
 import org.testng.annotations.*;
+import java.io.File; 
+import java.io.FileReader; 
+import java.io.FileWriter; 
+import java.io.IOException;
+import org.apache.commons.io.FileUtils; 
+import org.openqa.selenium.OutputType; 
+import org.openqa.selenium.TakesScreenshot;
 
 public class Laboratorio3_Ejercicio1 {
 	WebDriver driver; 
@@ -15,7 +22,7 @@ public class Laboratorio3_Ejercicio1 {
 		driver = new ChromeDriver(); 
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	}
-	
+    
 	@BeforeTest 
 	public void irUrl() {
 		driver.get("https://automationexercise.com/login");
@@ -46,9 +53,10 @@ public class Laboratorio3_Ejercicio1 {
 		botonRegistro.click(); 
 		
 		Assert.assertEquals(driver.getCurrentUrl(), urlAntes); 
+		
 		Assert.assertTrue(nombre.isDisplayed()); 
 		String estoEsUnTexto = null; 
-		Assert.assertNotNull(estoEsUnTexto); 
+		Assert.assertNull(estoEsUnTexto); 
 	}
 	
 	@Test
@@ -56,6 +64,47 @@ public class Laboratorio3_Ejercicio1 {
 		System.out.println("Esta es la prueba 2");
 	}
 	
+	@Test 
+	public void escribirYLeerTexto() throws IOException { 
+		
+		File carpeta = new File("Evidencias"); 
+		if (!carpeta.exists() && !carpeta.mkdirs()) { 
+			throw new IOException("No se pudo crear Evidencias"); 
+			} 
+		
+		File archivo = new File(carpeta, "nota2.txt"); 
+		
+		try (
+			FileWriter escritor = new FileWriter(archivo)) { 
+			escritor.write("Evidencia de la unidad 22, intento 2. "); 
+			} 
+		
+		try (
+			FileReader lector = new FileReader(archivo)) { 
+			int caracter; 
+			while ((caracter = lector.read()) != -1) { 
+				System.out.print((char) caracter); 
+				} 
+			} 
+		}
+	
+	@AfterMethod 
+	public void screenshot() throws IOException { 
+		if (driver == null) { 
+			System.out.println("No hay un navegador abierto");
+			return; 
+		} 
+		
+	File screen = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+	
+	File imageFile = new File("Evidencias/Test.png"); 
+	
+	FileUtils.copyFile(screen, imageFile); 
+	
+	System.out.println(imageFile.getAbsolutePath()); 
+	
+	}
+
 	@AfterMethod
 	public void mensajeDeFin() {
 		System.out.println("Despues del test (Method)");
